@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build-apk:
     runs-on: ubuntu-latest
@@ -19,6 +22,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
 
       - name: Extract project ZIP
         run: |
@@ -26,13 +30,15 @@ jobs:
           unzip -o "school-management (1).zip" -d extracted
 
       - name: Find Android project
+        shell: bash
         run: |
           echo "Searching for Android project..."
 
-          BUILD_FILE=$(find extracted -type f \( -name "build.gradle" -o -name "build.gradle.kts" \) | head -n 1)
+          BUILD_FILE=$(find extracted -type f -name "build.gradle" -o -name "build.gradle.kts" | head -n 1)
 
           if [ -z "$BUILD_FILE" ]; then
             echo "ERROR: Android Gradle project was not found."
+            echo "Files found:"
             find extracted -maxdepth 5 -type f | head -n 200
             exit 1
           fi
@@ -42,38 +48,28 @@ jobs:
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
           echo "Android project found at: $PROJECT_DIR"
 
-      - name: Fix Gradle Wrapper
-        working-directory: ${{ env.PROJECT_DIR }}
-        run: |
-          echo "Updating Gradle wrapper to 9.3.1..."
-
-          if [ -f "gradle/wrapper/gradle-wrapper.properties" ]; then
-            sed -i 's#gradle-[0-9][0-9.]*-bin.zip#gradle-9.3.1-bin.zip#g' gradle/wrapper/gradle-wrapper.properties
-            cat gradle/wrapper/gradle-wrapper.properties
-          else
-            echo "ERROR: gradle-wrapper.properties not found."
-            exit 1
-          fi
-
-          chmod +x gradlew
-
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '9.3.1'
+          gradle-version: '8.13'
 
-      - name: Verify Gradle version
+      - name: Check Gradle
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          ./gradlew --version
+          gradle --version
 
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
         run: |
-          ./gradlew clean assembleDebug --stacktrace
+          echo "Building Android APK..."
+          gradle clean assembleDebug --stacktrace
 
       - name: Find APK
+        shell: bash
         run: |
+          echo "Searching for APK..."
+
           APK=$(find "${PROJECT_DIR}" -type f -name "*.apk" | head -n 1)
 
           if [ -z "$APK" ]; then
@@ -81,7 +77,8 @@ jobs:
             exit 1
           fi
 
-          echo "APK found: $APK"
+          echo "APK found at: $APK"
+
           cp "$APK" "$GITHUB_WORKSPACE/School-Management.apk"
 
       - name: Upload APK
