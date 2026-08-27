@@ -27,26 +27,30 @@ jobs:
 
       - name: Find Android project
         run: |
-          echo "Searching for Gradle project..."
-          GRADLEW=$(find extracted -type f -name "gradlew" | head -n 1)
+          echo "Searching for Android project..."
 
-          if [ -z "$GRADLEW" ]; then
-            echo "ERROR: gradlew was not found inside school-management.zip"
-            echo "ZIP contents:"
-            find extracted -maxdepth 4 -type f | head -n 200
+          BUILD_FILE=$(find extracted -type f \( -name "build.gradle" -o -name "build.gradle.kts" \) | head -n 1)
+
+          if [ -z "$BUILD_FILE" ]; then
+            echo "ERROR: Android Gradle project was not found."
+            find extracted -maxdepth 5 -type f | head -n 200
             exit 1
           fi
 
-          PROJECT_DIR=$(dirname "$GRADLEW")
+          PROJECT_DIR=$(dirname "$BUILD_FILE")
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          chmod +x "$GRADLEW"
 
           echo "Android project found at: $PROJECT_DIR"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
 
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
-          ./gradlew clean assembleDebug --stacktrace
+          gradle clean assembleDebug --stacktrace
 
       - name: Find APK
         run: |
