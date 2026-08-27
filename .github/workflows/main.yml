@@ -23,7 +23,7 @@ jobs:
       - name: Extract project ZIP
         run: |
           mkdir -p extracted
-          unzip -o school-management.zip -d extracted
+          unzip -o "school-management (1).zip" -d extracted
 
       - name: Find Android project
         run: |
