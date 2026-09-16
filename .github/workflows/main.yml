@@ -30,7 +30,7 @@ jobs:
 
           echo "Searching for Android project ZIP..."
 
-          ZIP_FILE=$(find . -maxdepth 3 -type f -iname "*.zip" | head -n 1)
+          ZIP_FILE="./School-Management-Updated.zip"
 
           if [ -z "$ZIP_FILE" ]; then
             echo "ERROR: No ZIP file found in repository."
