@@ -30,7 +30,7 @@ jobs:
 
           echo "Searching for Android project ZIP..."
 
-          ZIP_FILE="./school-management (14).zip"
+          ZIP_FILE="./school-management (19).zip"
 
           if [ -z "$ZIP_FILE" ]; then
             echo "ERROR: No ZIP file found in repository."
@@ -81,7 +81,11 @@ jobs:
 
           echo "Android project found at: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-
+      - name: Use Firebase configuration
+        shell: bash
+        run: |
+          set -e
+          cp "./google-services (1).json" "$PROJECT_DIR/app/google-services.json"
       - name: Setup Gradle 9.3.1
         uses: gradle/actions/setup-gradle@v4
         with:
