@@ -53,7 +53,7 @@ jobs:
           echo "Extracting: $ZIP_FILE"
 
           unzip -o "$ZIP_FILE" -d extracted
-
+          rm -rf extracted/.checkpoint_pre_firebase
           echo "Extracted files:"
           find extracted -maxdepth 4 -type f | head -n 200
 
