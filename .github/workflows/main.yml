@@ -30,8 +30,7 @@ jobs:
 
           echo "Searching for Android project ZIP..."
 
-          ZIP_FILE="./school-management (19).zip"
-
+          ZIP_FILE="./school-management-20-password-session-fix-8.zip"
           if [ -z "$ZIP_FILE" ]; then
             echo "ERROR: No ZIP file found in repository."
             echo "Files in repository:"
